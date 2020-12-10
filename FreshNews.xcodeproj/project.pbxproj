@@ -271,19 +271,11 @@
 		CEF8D1BE258004150009D082 /* News */ = {
 			isa = PBXGroup;
 			children = (
-				CEF8D1C8258004850009D082 /* Model */,
 				CEF8D1C92580048B0009D082 /* View */,
 				CEF8D1CA258004910009D082 /* Controller */,
 				CE076B752581639A00A6709E /* Helpers */,
 			);
 			path = News;
-			sourceTree = "<group>";
-		};
-		CEF8D1C8258004850009D082 /* Model */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Model;
 			sourceTree = "<group>";
 		};
 		CEF8D1C92580048B0009D082 /* View */ = {
