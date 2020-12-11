@@ -71,8 +71,8 @@ extension ViewController : UITableViewDataSource, UITableViewDelegate {
         cell.AuthorLabel.text = constants.source + self.arrays.content[indexPath.row]
         cell.AuthorLabel.font = cell.AuthorLabel.font.withSize(12)
         Image().downloadpicture(url: arrays.urltoImage[indexPath.row]) { (dataimage) in
-            let imager = UIImage(data: dataimage)
-            cell.ImageLabel.image = self.image(with: imager!, scaledTo: CGSize(width: 200, height: 128))
+            guard  let imager = UIImage(data: dataimage) else {return}
+            cell.ImageLabel.image = self.image(with: imager, scaledTo: CGSize(width: 200, height: 128))
             cell.imageView?.contentMode = .scaleAspectFill
             
         }
