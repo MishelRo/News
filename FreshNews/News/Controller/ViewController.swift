@@ -6,96 +6,70 @@
 //
 
 import UIKit
+import SDWebImage
+
+struct source {
+    var urls = ""
+    var stringurl = ""
+    var imageUrl = ""
+    var content = ""
+    var urlimg = ""
+    var contents = ""
+}
 
 class ViewController: UIViewController {
     
     @IBOutlet weak var TableView: UITableView!
     @IBOutlet weak var ActivityIndicator: UIActivityIndicatorView!
-    var constants = Constants()
-    var arrays = Arrays()
-    var resixe = UIImage()
     
+    var jsonmanager = JsonNetworkManager()
+    var datafetcher = DataFeatcherService()
+    var constants = source()
+    var arrays = Arrays()
+    var resize = UIImage()
+    var newcell = NewsViewCell()
+    var key = keys()
+    var article : [Article]!
     
     func frozenStart () {
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            if self.constants.timer < 1 {
-                self.constants.timer += 1
-            } else {
+        var timer = 0.0
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [self] _ in
+            if timer < 1 {timer += 1 } else {
                 self.ActivityIndicator.stopAnimating()
                 self.ActivityIndicator.isHidden = true
                 self.tabBarController?.tabBar.isHidden = false
-                self.TableView.isHidden = false
+                self.TableView.isHidden = false }
+            TableView.reloadData()
+        }
+    }
+    
+    func getarticles () {
+        datafetcher.fetchArticle(header: key.header, url: key.url) {[self] (modelJson) in
+            let new   =  modelJson!.articles
+            DispatchQueue.main.async {
+                for item in new {
+                    article = new
+                    arrays.content.append(item.source?.name ?? "информация не доступна")
+                    arrays.author.append(item.author ?? "информация не доступна")
+                    arrays.titles.append(item.title ??  "информация не доступна")
+                    arrays.url.append (item.url )
+                    arrays.urltoImage.append (item.urlToImage ?? "https://avatars.mds.yandex.net/get-pdb/911433/5bc8852a-315d-48e7-a6c4-3fc3db2aabad/s1200?webp=false")
+                    TableView.reloadData()
+                }
             }
         }
     }
     
-    func image(with image: UIImage, scaledTo newSize: CGSize) -> UIImage {
-        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
-        image.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return newImage ?? UIImage()
-    }
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+        getarticles ()
         ActivityIndicator.startAnimating()
         TableView.decelerationRate = UIScrollView.DecelerationRate.init(rawValue: 0)
         TableView.isHidden = true
         frozenStart ()
         title = "Fresh News"
-        JsonNetworkManager().Article { [self] (modelJson) in
-            let new   =  modelJson.articles
-            for item in new {
-                arrays.content.append(item.source?.name ?? constants.infoEror)
-                arrays.author.append(item.author ??  constants.infoEror)
-                arrays.titles.append(item.title ??  constants.infoEror)
-                arrays.url.append (item.url )
-                arrays.urltoImage.append (item.urlToImage ?? constants.erorUrl)
-                TableView.reloadData()
-            }
-        }
+        
     }
 }
 
-extension ViewController : UITableViewDataSource, UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return arrays.titles.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "123", for: indexPath) as! NewsViewCell
-        cell.titleLabel.text =  self.arrays.titles[indexPath.row]
-        cell.titleLabel.font = cell.titleLabel.font.withSize(12)
-        cell.AuthorLabel.text = constants.source + self.arrays.content[indexPath.row]
-        cell.AuthorLabel.font = cell.AuthorLabel.font.withSize(12)
-        Image().downloadpicture(url: arrays.urltoImage[indexPath.row]) { (dataimage) in
-            guard  let imager = UIImage(data: dataimage) else {return}
-            cell.ImageLabel.image = self.image(with: imager, scaledTo: CGSize(width: 200, height: 128))
-            cell.imageView?.contentMode = .scaleAspectFill
-            
-        }
-        return cell
-        
-    }
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 80
-    }
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.performSegue(withIdentifier: "Web", sender: nil)
-        self.constants.urls = self.arrays.url[indexPath.row]
-        self.constants.urlimg = arrays.urltoImage[indexPath.row]
-        self.constants.contents = arrays.titles[indexPath.row]
-        
-    }
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard segue.identifier == "Web" else {return}
-        let WVC = segue.destination as! WebViewController
-        DispatchQueue.main.async { [self] in
-            WVC.stringurl = constants.urls
-            WVC.imageUrl = constants.urlimg
-            WVC.content = constants.contents
-        }
-    }
-}
+

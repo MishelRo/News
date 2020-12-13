@@ -2,7 +2,7 @@
 # platform :ios, '9.0'
 
   pod 'Alamofire'
-
+   pod 'SDWebImage'
 
 target 'FreshNews' do
   # Comment the next line if you don't want to use dynamic frameworks
